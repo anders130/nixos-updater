@@ -1,7 +1,9 @@
 import os
+import re
 import subprocess
 
-from PyQt6.QtCore import QProcess, pyqtSignal
+from PyQt6.QtCore import QModelIndex, QProcess, Qt, pyqtSignal
+from PyQt6.QtGui import QBrush, QColor
 from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -9,14 +11,16 @@ from PyQt6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QRadioButton,
+    QTreeWidget,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
-from ..application.services import KernelCheckService, UpdateCheckService
+from ..application.services import ChangelogService, KernelCheckService, UpdateCheckService
 from ..domain.models import Revision
 from ..i18n import _
-from .workers import KernelCheckWorker, strip_ansi
+from .workers import ChangelogWorker, KernelCheckWorker, strip_ansi
 
 
 def _cache_args() -> list[str]:
@@ -37,6 +41,7 @@ class UpdateWindow(QWidget):
         flake_url: str,
         update_service: UpdateCheckService,
         kernel_service: KernelCheckService,
+        changelog_service: ChangelogService,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -44,11 +49,15 @@ class UpdateWindow(QWidget):
         self._flake_url = flake_url
         self._update_service = update_service
         self._kernel_service = kernel_service
+        self._changelog_service = changelog_service
         self._process: QProcess | None = None
         self._log_visible = False
+        self._changelog_visible = False
         self._user_scrolled = False
+        self._changelog_worker: ChangelogWorker | None = None
         self._setup_ui()
         self._start_kernel_check()
+        self._toggle_changelog()
 
     def _setup_ui(self) -> None:
         self.setWindowTitle(_("System Update Available"))
@@ -80,6 +89,16 @@ class UpdateWindow(QWidget):
         group_layout.addWidget(self.kernel_warning)
         layout.addWidget(group)
 
+        self.changelog_tree = QTreeWidget()
+        self.changelog_tree.setVisible(False)
+        self.changelog_tree.setMinimumHeight(150)
+        self.changelog_tree.setMaximumHeight(300)
+        self.changelog_tree.setColumnCount(4)
+        self.changelog_tree.setHeaderLabels([_("Package"), _("Old"), _("New"), _("Size")])
+        self.changelog_tree.setRootIsDecorated(True)
+        self.changelog_tree.header().setStretchLastSection(True)
+        layout.addWidget(self.changelog_tree, stretch=1)
+
         self.log_edit = QPlainTextEdit()
         self.log_edit.setReadOnly(True)
         self.log_edit.setVisible(False)
@@ -98,6 +117,8 @@ class UpdateWindow(QWidget):
         self.skip_btn.clicked.connect(self._on_skip)
         self.later_btn = QPushButton(_("Later"))
         self.later_btn.clicked.connect(self.hide)
+        self.changes_btn = QPushButton(_("What's changing?"))
+        self.changes_btn.clicked.connect(self._toggle_changelog)
         self.log_btn = QPushButton(_("Show Log"))
         self.log_btn.clicked.connect(self._toggle_log)
         self.update_btn = QPushButton(_("Update"))
@@ -106,6 +127,7 @@ class UpdateWindow(QWidget):
         btn_row.addWidget(self.skip_btn)
         btn_row.addWidget(self.later_btn)
         btn_row.addStretch()
+        btn_row.addWidget(self.changes_btn)
         btn_row.addWidget(self.log_btn)
         btn_row.addWidget(self.update_btn)
         layout.addLayout(btn_row)
@@ -119,6 +141,114 @@ class UpdateWindow(QWidget):
         if changed:
             self.kernel_warning.setVisible(True)
             self.radio_boot.setChecked(True)
+
+    def _toggle_changelog(self) -> None:
+        self._changelog_visible = not self._changelog_visible
+        self.changelog_tree.setVisible(self._changelog_visible)
+        self.changes_btn.setText(
+            _("Hide Changes") if self._changelog_visible else _("What's changing?")
+        )
+        if self._changelog_visible and self.changelog_tree.topLevelItemCount() == 0:
+            self._start_changelog()
+        self.adjustSize()
+
+    def _start_changelog(self) -> None:
+        if self._changelog_worker and self._changelog_worker.isRunning():
+            return
+        placeholder = QTreeWidgetItem([_("Building closure, please wait…")])
+        placeholder.setForeground(0, QBrush(QColor(150, 150, 150)))
+        self.changelog_tree.clear()
+        self.changelog_tree.addTopLevelItem(placeholder)
+        self._changelog_worker = ChangelogWorker(self._changelog_service)
+        self._changelog_worker.finished.connect(self._on_changelog_done)
+        self._changelog_worker.start()
+
+    def _on_changelog_done(self, result: str) -> None:
+        self.changelog_tree.clear()
+        if not result.strip():
+            self.changelog_tree.addTopLevelItem(
+                QTreeWidgetItem([_("No package changes detected.")])
+            )
+            return
+        self._populate_changelog(result)
+
+    @staticmethod
+    def _bump_level(old: str, new: str) -> str:
+        def parts(v):
+            return [int(x) for x in re.findall(r"\d+", v)]
+        o, n = parts(old), parts(new)
+        if not o or not n:
+            return "minor"
+        if o[0] != n[0]:
+            return "major"
+        if len(o) > 1 and len(n) > 1 and o[1] != n[1]:
+            return "minor"
+        return "patch"
+
+    @staticmethod
+    def _parse_diff(raw: str):
+        changed_re = re.compile(r"^(.+?):\s+(.+?)\s+→\s+(.+?)(?:,\s+(.+))?\s*$")
+        added_re = re.compile(r"^(.+?):\s+\(new\)(?:,\s+(.+))?\s*$")
+        updated, added, removed = [], [], []
+        for line in raw.strip().splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            m = added_re.match(line)
+            if m:
+                added.append((m.group(1), "", "", m.group(2) or ""))
+                continue
+            m = changed_re.match(line)
+            if m:
+                name, old, new, size = m.group(1), m.group(2), m.group(3), m.group(4) or ""
+                if "(gone)" in new:
+                    removed.append((name, old, "", size))
+                else:
+                    updated.append((name, old, new, size))
+        level_order = {"major": 0, "minor": 1, "patch": 2}
+        updated.sort(key=lambda t: level_order[UpdateWindow._bump_level(t[1], t[2])])
+        return updated, added, removed
+
+    def _populate_changelog(self, raw: str) -> None:
+        updated, added, removed = self._parse_diff(raw)
+
+        def add_section(label, items, base_color, check_level=False):
+            if not items:
+                return
+            header = QTreeWidgetItem([f"{label}  ({len(items)})"])
+            font = header.font(0)
+            font.setBold(True)
+            header.setFont(0, font)
+            header.setForeground(0, QBrush(base_color))
+            header.setFlags(header.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            self.changelog_tree.addTopLevelItem(header)
+            idx = self.changelog_tree.indexOfTopLevelItem(header)
+            self.changelog_tree.setFirstColumnSpanned(idx, QModelIndex(), True)
+            for name, old, new, size in items:
+                if check_level:
+                    level = self._bump_level(old, new)
+                    if level == "major":
+                        color = QColor(86, 156, 214)
+                    elif level == "minor":
+                        color = QColor(120, 180, 220)
+                    else:
+                        color = QColor(160, 200, 230)
+                else:
+                    color = base_color
+                row = QTreeWidgetItem(header, [name, old, new, size])
+                font = row.font(0)
+                font.setBold(level == "major" if check_level else False)
+                row.setFont(0, font)
+                for col in range(4):
+                    row.setForeground(col, QBrush(color))
+            header.setExpanded(True)
+
+        add_section(_("Updated"), updated, QColor(86, 156, 214), check_level=True)
+        add_section(_("Added"), added, QColor(100, 200, 100))
+        add_section(_("Removed"), removed, QColor(220, 80, 80))
+
+        for i in range(3):
+            self.changelog_tree.resizeColumnToContents(i)
 
     def _toggle_log(self) -> None:
         self._log_visible = not self._log_visible

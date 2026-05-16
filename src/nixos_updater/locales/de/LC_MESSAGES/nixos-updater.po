@@ -92,3 +92,36 @@ msgstr "\nRollback erfolgreich!"
 
 msgid "\nRollback failed (exit code %d)"
 msgstr "\nRollback fehlgeschlagen (Exit-Code %d)"
+
+msgid "What's changing?"
+msgstr "Was ändert sich?"
+
+msgid "Hide Changes"
+msgstr "Änderungen ausblenden"
+
+msgid "Building closure, please wait…"
+msgstr "Closure wird erstellt, bitte warten…"
+
+msgid "No package changes detected."
+msgstr "Keine Paketänderungen erkannt."
+
+msgid "Package"
+msgstr "Paket"
+
+msgid "Old"
+msgstr "Alt"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "Size"
+msgstr "Größe"
+
+msgid "Updated"
+msgstr "Aktualisiert"
+
+msgid "Added"
+msgstr "Hinzugefügt"
+
+msgid "Removed"
+msgstr "Entfernt"

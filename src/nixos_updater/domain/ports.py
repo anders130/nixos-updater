@@ -31,3 +31,8 @@ class KernelInspector(ABC):
 
     @abstractmethod
     def upstream_version(self) -> KernelVersion | None: ...
+
+
+class SystemDiffer(ABC):
+    @abstractmethod
+    def diff(self) -> str | None: ...

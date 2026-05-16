@@ -2,9 +2,9 @@ import os
 import sys
 from pathlib import Path
 
-from .application.services import KernelCheckService, UpdateCheckService
+from .application.services import ChangelogService, KernelCheckService, UpdateCheckService
 from .infrastructure.file_store import FileRevisionStore
-from .infrastructure.nix_cli import NixFlakeSource, NixKernelInspector
+from .infrastructure.nix_cli import NixFlakeSource, NixKernelInspector, NixSystemDiffer
 from .presentation.tray import NixOSUpdaterApp
 
 
@@ -23,9 +23,11 @@ def main() -> None:
     store = FileRevisionStore(data_dir)
     source = NixFlakeSource(flake_url)
     inspector = NixKernelInspector(flake_url, hostname)
+    differ = NixSystemDiffer(flake_url, hostname)
 
     update_service = UpdateCheckService(store, source)
     kernel_service = KernelCheckService(inspector)
+    changelog_service = ChangelogService(differ)
 
-    app = NixOSUpdaterApp(sys.argv, flake_url, update_service, kernel_service)
+    app = NixOSUpdaterApp(sys.argv, flake_url, update_service, kernel_service, changelog_service)
     sys.exit(app.exec())

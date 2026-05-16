@@ -5,7 +5,7 @@ from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
-from ..application.services import KernelCheckService, UpdateCheckService, UpdateStatus
+from ..application.services import ChangelogService, KernelCheckService, UpdateCheckService, UpdateStatus
 from ..domain.models import Revision
 from ..i18n import _
 from .windows import RollbackDialog, UpdateWindow
@@ -21,6 +21,7 @@ class NixOSUpdaterApp(QApplication):
         flake_url: str,
         update_service: UpdateCheckService,
         kernel_service: KernelCheckService,
+        changelog_service: ChangelogService,
     ) -> None:
         super().__init__(argv)
         self.setQuitOnLastWindowClosed(False)
@@ -28,6 +29,7 @@ class NixOSUpdaterApp(QApplication):
         self._flake_url = flake_url
         self._update_service = update_service
         self._kernel_service = kernel_service
+        self._changelog_service = changelog_service
         self._pending_rev: Revision | None = None
         self._post_update = False
         self._update_window: UpdateWindow | None = None
@@ -120,6 +122,7 @@ class NixOSUpdaterApp(QApplication):
                 self._flake_url,
                 self._update_service,
                 self._kernel_service,
+                self._changelog_service,
             )
             self._update_window.update_completed.connect(self._on_update_completed)
         self._update_window.show()

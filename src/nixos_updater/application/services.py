@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 
 from ..domain.models import Revision
-from ..domain.ports import FlakeSource, KernelInspector, RevisionStore
+from ..domain.ports import FlakeSource, KernelInspector, RevisionStore, SystemDiffer
 
 
 class UpdateStatus(Enum):
@@ -57,3 +57,11 @@ class KernelCheckService:
             return False
         upstream = self._inspector.upstream_version()
         return upstream is not None and upstream.value != running.value
+
+
+class ChangelogService:
+    def __init__(self, differ: SystemDiffer) -> None:
+        self._differ = differ
+
+    def fetch_diff(self) -> str | None:
+        return self._differ.diff()
