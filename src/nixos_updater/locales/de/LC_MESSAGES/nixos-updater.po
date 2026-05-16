@@ -1,0 +1,94 @@
+# German translation for nixos-updater
+# Copyright (C) 2025 anders130
+# MIME-Version: 1.0
+# Content-Type: text/plain; charset=UTF-8
+# Content-Transfer-Encoding: 8bit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: nixos-updater 0.1.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+
+msgid "Check for updates"
+msgstr "Auf Updates prüfen"
+
+msgid "Rollback if broken"
+msgstr "Rollback bei Problemen"
+
+msgid "Quit"
+msgstr "Beenden"
+
+msgid "System Update Available"
+msgstr "Systemupdate verfügbar"
+
+msgid "Click to update your NixOS system."
+msgstr "Klicken, um dein NixOS-System zu aktualisieren."
+
+msgid "Revision: %s"
+msgstr "Revision: %s"
+
+msgid "Apply method"
+msgstr "Anwendungsmethode"
+
+msgid "Apply now (switch)\nSwitch running services without reboot"
+msgstr "Jetzt anwenden (switch)\nDienste ohne Neustart wechseln"
+
+msgid "Apply on next boot (boot)\nRequired for kernel / bootloader changes"
+msgstr "Beim nächsten Start anwenden (boot)\nErforderlich für Kernel-/Bootloader-Änderungen"
+
+msgid "Kernel update detected — boot recommended"
+msgstr "Kernel-Update erkannt — Neustart empfohlen"
+
+msgid "Skip Version"
+msgstr "Version überspringen"
+
+msgid "Later"
+msgstr "Später"
+
+msgid "Show Log"
+msgstr "Log anzeigen"
+
+msgid "Hide Log"
+msgstr "Log ausblenden"
+
+msgid "Update"
+msgstr "Aktualisieren"
+
+msgid "$ %s\n"
+msgstr "$ %s\n"
+
+msgid "\nUpdate successful!"
+msgstr "\nUpdate erfolgreich!"
+
+msgid "Restart to apply the new kernel / bootloader changes."
+msgstr "Neustart erforderlich, um Kernel-/Bootloader-Änderungen anzuwenden."
+
+msgid "Restart Now"
+msgstr "Jetzt neu starten"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "\nUpdate failed (exit code %d)"
+msgstr "\nUpdate fehlgeschlagen (Exit-Code %d)"
+
+msgid "Rollback System"
+msgstr "System zurücksetzen"
+
+msgid "Roll back to the previous system configuration?"
+msgstr "Zur vorherigen Systemkonfiguration zurückrollen?"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Rollback"
+msgstr "Zurückrollen"
+
+msgid "\nRollback successful!"
+msgstr "\nRollback erfolgreich!"
+
+msgid "\nRollback failed (exit code %d)"
+msgstr "\nRollback fehlgeschlagen (Exit-Code %d)"

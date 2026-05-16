@@ -4,7 +4,7 @@
         self',
         ...
     }: let
-        devDeps = with pkgs; [black isort];
+        devDeps = with pkgs; [black isort gettext];
     in {
         devShells.default = pkgs.mkShell {
             inputsFrom = [self'.packages.nixos-updater];

@@ -1,0 +1,94 @@
+# NixOS Updater translation template
+# Copyright (C) 2025 anders130
+# MIME-Version: 1.0
+# Content-Type: text/plain; charset=UTF-8
+# Content-Transfer-Encoding: 8bit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: nixos-updater 0.1.0\n"
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Check for updates"
+msgstr ""
+
+msgid "Rollback if broken"
+msgstr ""
+
+msgid "Quit"
+msgstr ""
+
+msgid "System Update Available"
+msgstr ""
+
+msgid "Click to update your NixOS system."
+msgstr ""
+
+msgid "Revision: %s"
+msgstr ""
+
+msgid "Apply method"
+msgstr ""
+
+msgid "Apply now (switch)\nSwitch running services without reboot"
+msgstr ""
+
+msgid "Apply on next boot (boot)\nRequired for kernel / bootloader changes"
+msgstr ""
+
+msgid "Kernel update detected — boot recommended"
+msgstr ""
+
+msgid "Skip Version"
+msgstr ""
+
+msgid "Later"
+msgstr ""
+
+msgid "Show Log"
+msgstr ""
+
+msgid "Hide Log"
+msgstr ""
+
+msgid "Update"
+msgstr ""
+
+msgid "$ %s\n"
+msgstr ""
+
+msgid "\nUpdate successful!"
+msgstr ""
+
+msgid "Restart to apply the new kernel / bootloader changes."
+msgstr ""
+
+msgid "Restart Now"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "\nUpdate failed (exit code %d)"
+msgstr ""
+
+msgid "Rollback System"
+msgstr ""
+
+msgid "Roll back to the previous system configuration?"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Rollback"
+msgstr ""
+
+msgid "\nRollback successful!"
+msgstr ""
+
+msgid "\nRollback failed (exit code %d)"
+msgstr ""

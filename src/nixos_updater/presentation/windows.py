@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 
 from ..application.services import KernelCheckService, UpdateCheckService
 from ..domain.models import Revision
+from ..i18n import _
 from .workers import KernelCheckWorker, strip_ansi
 
 
@@ -40,28 +41,28 @@ class UpdateWindow(QWidget):
         self._start_kernel_check()
 
     def _setup_ui(self) -> None:
-        self.setWindowTitle("System Update Available")
+        self.setWindowTitle(_("System Update Available"))
         self.setMinimumWidth(480)
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
         layout.setContentsMargins(16, 16, 16, 16)
 
-        title = QLabel("System Update Available")
+        title = QLabel(_("System Update Available"))
         title.setStyleSheet("font-size: 15px; font-weight: bold;")
         layout.addWidget(title)
-        layout.addWidget(QLabel(f"Revision: {self.rev.short()}"))
+        layout.addWidget(QLabel(_("Revision: %s") % self.rev.short()))
 
-        group = QGroupBox("Apply method")
+        group = QGroupBox(_("Apply method"))
         group_layout = QVBoxLayout(group)
         group_layout.setSpacing(4)
         self.radio_switch = QRadioButton(
-            "Apply now (switch)\nSwitch running services without reboot"
+            _("Apply now (switch)\nSwitch running services without reboot")
         )
         self.radio_switch.setChecked(True)
         self.radio_boot = QRadioButton(
-            "Apply on next boot (boot)\nRequired for kernel / bootloader changes"
+            _("Apply on next boot (boot)\nRequired for kernel / bootloader changes")
         )
-        self.kernel_warning = QLabel("Kernel update detected — boot recommended")
+        self.kernel_warning = QLabel(_("Kernel update detected — boot recommended"))
         self.kernel_warning.setStyleSheet("color: orange;")
         self.kernel_warning.setVisible(False)
         group_layout.addWidget(self.radio_switch)
@@ -83,13 +84,13 @@ class UpdateWindow(QWidget):
 
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-        self.skip_btn = QPushButton("Skip Version")
+        self.skip_btn = QPushButton(_("Skip Version"))
         self.skip_btn.clicked.connect(self._on_skip)
-        self.later_btn = QPushButton("Later")
+        self.later_btn = QPushButton(_("Later"))
         self.later_btn.clicked.connect(self.hide)
-        self.log_btn = QPushButton("Show Log")
+        self.log_btn = QPushButton(_("Show Log"))
         self.log_btn.clicked.connect(self._toggle_log)
-        self.update_btn = QPushButton("Update")
+        self.update_btn = QPushButton(_("Update"))
         self.update_btn.setDefault(True)
         self.update_btn.clicked.connect(self._start_update)
         btn_row.addWidget(self.skip_btn)
@@ -112,7 +113,7 @@ class UpdateWindow(QWidget):
     def _toggle_log(self) -> None:
         self._log_visible = not self._log_visible
         self.log_edit.setVisible(self._log_visible)
-        self.log_btn.setText("Hide Log" if self._log_visible else "Show Log")
+        self.log_btn.setText(_("Hide Log") if self._log_visible else _("Show Log"))
         self.adjustSize()
 
     def _on_scroll(self, value: int) -> None:
@@ -140,7 +141,7 @@ class UpdateWindow(QWidget):
             self._toggle_log()
 
         cmd = ["sudo", "nixos-rebuild", action, "--flake", self._flake_url]
-        self._append_log(f"$ {' '.join(cmd)}\n")
+        self._append_log(_("$ %s\n") % " ".join(cmd))
 
         self._process = QProcess()
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
@@ -161,34 +162,34 @@ class UpdateWindow(QWidget):
         success = exit_code == 0
         if success:
             self._update_service.mark_applied(self.rev)
-            self._append_log("\nUpdate successful!")
+            self._append_log(_("\nUpdate successful!"))
             if self.radio_boot.isChecked():
                 self._append_log(
-                    "Restart to apply the new kernel / bootloader changes."
+                    _("Restart to apply the new kernel / bootloader changes.")
                 )
-                self.update_btn.setText("Restart Now")
+                self.update_btn.setText(_("Restart Now"))
                 self.update_btn.clicked.disconnect()
                 self.update_btn.clicked.connect(
                     lambda: subprocess.run(["systemctl", "reboot"])
                 )
                 self.update_btn.setEnabled(True)
-                self.later_btn.setText("Close")
+                self.later_btn.setText(_("Close"))
                 self.later_btn.clicked.disconnect()
                 self.later_btn.clicked.connect(self.close)
                 self.later_btn.setEnabled(True)
             else:
-                self.update_btn.setText("Close")
+                self.update_btn.setText(_("Close"))
                 self.update_btn.clicked.disconnect()
                 self.update_btn.clicked.connect(self.close)
                 self.update_btn.setEnabled(True)
                 self.later_btn.setVisible(False)
         else:
-            self._append_log(f"\nUpdate failed (exit code {exit_code})")
-            self.update_btn.setText("Update")
+            self._append_log(_("\nUpdate failed (exit code %d)") % exit_code)
+            self.update_btn.setText(_("Update"))
             self.update_btn.clicked.disconnect()
             self.update_btn.clicked.connect(self._start_update)
             self.update_btn.setEnabled(True)
-            self.later_btn.setText("Close")
+            self.later_btn.setText(_("Close"))
             self.later_btn.clicked.disconnect()
             self.later_btn.clicked.connect(self.close)
             self.later_btn.setEnabled(True)
@@ -204,12 +205,12 @@ class RollbackDialog(QWidget):
         self._setup_ui()
 
     def _setup_ui(self) -> None:
-        self.setWindowTitle("Rollback System")
+        self.setWindowTitle(_("Rollback System"))
         self.setMinimumWidth(400)
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
         layout.setContentsMargins(16, 16, 16, 16)
-        layout.addWidget(QLabel("Roll back to the previous system configuration?"))
+        layout.addWidget(QLabel(_("Roll back to the previous system configuration?")))
 
         self.log_edit = QPlainTextEdit()
         self.log_edit.setReadOnly(True)
@@ -225,9 +226,9 @@ class RollbackDialog(QWidget):
 
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-        self.cancel_btn = QPushButton("Cancel")
+        self.cancel_btn = QPushButton(_("Cancel"))
         self.cancel_btn.clicked.connect(self.hide)
-        self.rollback_btn = QPushButton("Rollback")
+        self.rollback_btn = QPushButton(_("Rollback"))
         self.rollback_btn.setDefault(True)
         self.rollback_btn.clicked.connect(self._start_rollback)
         btn_row.addStretch()
@@ -251,7 +252,7 @@ class RollbackDialog(QWidget):
         self.log_edit.setVisible(True)
 
         cmd = ["sudo", "nixos-rebuild", "switch", "--rollback"]
-        self._append_log(f"$ {' '.join(cmd)}\n")
+        self._append_log(_("$ %s\n") % " ".join(cmd))
 
         self._process = QProcess()
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
@@ -268,13 +269,13 @@ class RollbackDialog(QWidget):
         )
         self._append_log(raw)
 
-    def _on_finished(self, exit_code: int, _) -> None:
+    def _on_finished(self, exit_code: int, _status) -> None:
         if exit_code == 0:
             self._update_service.clear_applied()
-            self._append_log("\nRollback successful!")
+            self._append_log(_("\nRollback successful!"))
         else:
-            self._append_log(f"\nRollback failed (exit code {exit_code})")
-        self.cancel_btn.setText("Close")
+            self._append_log(_("\nRollback failed (exit code %d)") % exit_code)
+        self.cancel_btn.setText(_("Close"))
         self.cancel_btn.clicked.disconnect()
         self.cancel_btn.clicked.connect(self.close)
         self.cancel_btn.setEnabled(True)

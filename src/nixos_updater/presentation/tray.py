@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
 from ..application.services import KernelCheckService, UpdateCheckService, UpdateStatus
 from ..domain.models import Revision
+from ..i18n import _
 from .windows import RollbackDialog, UpdateWindow
 from .workers import UpdateCheckWorker
 
@@ -73,17 +74,17 @@ class NixOSUpdaterApp(QApplication):
             menu = QMenu()
             self._tray.setContextMenu(menu)
 
-        check_action = QAction("Check for updates", self)
+        check_action = QAction(_("Check for updates"), self)
         check_action.triggered.connect(self._check_for_update)
         menu.addAction(check_action)
 
         if self._post_update:
-            rollback_action = QAction("Rollback if broken", self)
+            rollback_action = QAction(_("Rollback if broken"), self)
             rollback_action.triggered.connect(self._show_rollback)
             menu.addAction(rollback_action)
 
         menu.addSeparator()
-        quit_action = QAction("Quit", self)
+        quit_action = QAction(_("Quit"), self)
         quit_action.triggered.connect(self.quit)
         menu.addAction(quit_action)
 
@@ -103,8 +104,8 @@ class NixOSUpdaterApp(QApplication):
             self._pending_rev = result.revision
             self._tray.setVisible(True)
             self._tray.showMessage(
-                "System Update Available",
-                "Click to update your NixOS system.",
+                _("System Update Available"),
+                _("Click to update your NixOS system."),
                 self.windowIcon(),
                 5_000,
             )

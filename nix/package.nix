@@ -18,12 +18,17 @@
                 buildInputs = [qt6Packages.qtwayland];
                 nativeBuildInputs = [
                     copyDesktopItems
+                    pkgs.gettext
                     qt6Packages.wrapQtAppsHook
                 ];
                 dontWrapQtApps = true;
                 preBuild = ''
                     cp ${nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg \
                        src/nixos_updater/icon.svg
+                    for po in src/nixos_updater/locales/*/LC_MESSAGES/nixos-updater.po; do
+                        dir=$(dirname "$po")
+                        msgfmt "$po" -o "$dir/nixos-updater.mo"
+                    done
                 '';
                 preFixup = ''
                     install -Dm644 \
