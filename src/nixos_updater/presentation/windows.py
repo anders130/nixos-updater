@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from PyQt6.QtCore import QProcess, pyqtSignal
@@ -16,6 +17,15 @@ from ..application.services import KernelCheckService, UpdateCheckService
 from ..domain.models import Revision
 from ..i18n import _
 from .workers import KernelCheckWorker, strip_ansi
+
+
+def _cache_args() -> list[str]:
+    args = []
+    for entry in os.environ.get("NIXOS_UPDATER_CACHES", "").split(";"):
+        parts = entry.split("|", 1)
+        if len(parts) == 2 and parts[0].strip():
+            args += ["--substituters", parts[0].strip(), "--trusted-public-keys", parts[1].strip()]
+    return args
 
 
 class UpdateWindow(QWidget):
@@ -142,6 +152,7 @@ class UpdateWindow(QWidget):
 
         cmd = ["sudo", "nixos-rebuild", action, "--flake", self._flake_url]
         self._append_log(_("$ %s\n") % " ".join(cmd))
+        cmd += _cache_args()
 
         self._process = QProcess()
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
@@ -253,6 +264,7 @@ class RollbackDialog(QWidget):
 
         cmd = ["sudo", "nixos-rebuild", "switch", "--rollback"]
         self._append_log(_("$ %s\n") % " ".join(cmd))
+        cmd += _cache_args()
 
         self._process = QProcess()
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)

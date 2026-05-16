@@ -2,6 +2,12 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
+class BinaryCache:
+    url: str
+    key: str
+
+
+@dataclass(frozen=True)
 class Revision:
     value: str
 

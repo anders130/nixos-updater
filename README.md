@@ -34,10 +34,24 @@ services.nixosUpdater = {
 
 ## Options
 
-| Option     | Type   | Description                   |
-| ---------- | ------ | ----------------------------- |
-| `enable`   | bool   | Enable the service            |
-| `flakeUrl` | string | Flake to watch for updates    |
+| Option     | Type                           | Description                        |
+| ---------- | ------------------------------ | ---------------------------------- |
+| `enable`   | bool                           | Enable the service                 |
+| `flakeUrl` | string                         | Flake to watch for updates         |
+| `caches`   | list of `{ url, key }`         | Binary caches for update/rollback  |
+
+Example with a cache:
+
+```nix
+services.nixosUpdater = {
+  enable = true;
+  flakeUrl = "github:you/nixos-config";
+  caches = [{
+    url = "https://you.cachix.org";
+    key = "you.cachix.org-1:abc123...";
+  }];
+};
+```
 
 ## Development
 
