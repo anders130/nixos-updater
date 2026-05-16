@@ -5,7 +5,12 @@ from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
-from ..application.services import ChangelogService, KernelCheckService, UpdateCheckService, UpdateStatus
+from ..application.services import (
+    ChangelogService,
+    KernelCheckService,
+    UpdateCheckService,
+    UpdateStatus,
+)
 from ..domain.models import Revision
 from ..i18n import _
 from .windows import RollbackDialog, UpdateWindow

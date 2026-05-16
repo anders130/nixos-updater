@@ -11,7 +11,12 @@ def _cache_env_args() -> list[str]:
     for entry in os.environ.get("NIXOS_UPDATER_CACHES", "").split(";"):
         parts = entry.split("|", 1)
         if len(parts) == 2 and parts[0].strip():
-            args += ["--substituters", parts[0].strip(), "--trusted-public-keys", parts[1].strip()]
+            args += [
+                "--substituters",
+                parts[0].strip(),
+                "--trusted-public-keys",
+                parts[1].strip(),
+            ]
     return args
 
 

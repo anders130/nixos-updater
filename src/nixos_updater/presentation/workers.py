@@ -1,4 +1,5 @@
 import re
+import subprocess
 
 from PyQt6.QtCore import QThread, pyqtSignal
 
@@ -48,3 +49,23 @@ class ChangelogWorker(QThread):
     def run(self) -> None:
         result = self._service.fetch_diff()
         self.finished.emit(result or "")
+
+
+class HomepageWorker(QThread):
+    finished = pyqtSignal(str)
+
+    def __init__(self, package: str) -> None:
+        super().__init__()
+        self._package = package
+
+    def run(self) -> None:
+        try:
+            result = subprocess.run(
+                ["nix", "eval", "--raw", f"nixpkgs#{self._package}.meta.homepage"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            self.finished.emit(result.stdout.strip() if result.returncode == 0 else "")
+        except Exception:
+            self.finished.emit("")

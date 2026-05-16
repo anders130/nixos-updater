@@ -2,8 +2,8 @@ import os
 import re
 import subprocess
 
-from PyQt6.QtCore import QModelIndex, QProcess, Qt, pyqtSignal
-from PyQt6.QtGui import QBrush, QColor
+from PyQt6.QtCore import QModelIndex, QProcess, Qt, QUrl, pyqtSignal
+from PyQt6.QtGui import QBrush, QColor, QCursor, QDesktopServices
 from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -17,10 +17,14 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from ..application.services import ChangelogService, KernelCheckService, UpdateCheckService
+from ..application.services import (
+    ChangelogService,
+    KernelCheckService,
+    UpdateCheckService,
+)
 from ..domain.models import Revision
 from ..i18n import _
-from .workers import ChangelogWorker, KernelCheckWorker, strip_ansi
+from .workers import ChangelogWorker, HomepageWorker, KernelCheckWorker, strip_ansi
 
 
 def _cache_args() -> list[str]:
@@ -28,7 +32,12 @@ def _cache_args() -> list[str]:
     for entry in os.environ.get("NIXOS_UPDATER_CACHES", "").split(";"):
         parts = entry.split("|", 1)
         if len(parts) == 2 and parts[0].strip():
-            args += ["--substituters", parts[0].strip(), "--trusted-public-keys", parts[1].strip()]
+            args += [
+                "--substituters",
+                parts[0].strip(),
+                "--trusted-public-keys",
+                parts[1].strip(),
+            ]
     return args
 
 
@@ -55,6 +64,7 @@ class UpdateWindow(QWidget):
         self._changelog_visible = False
         self._user_scrolled = False
         self._changelog_worker: ChangelogWorker | None = None
+        self._homepage_worker: HomepageWorker | None = None
         self._setup_ui()
         self._start_kernel_check()
         self._toggle_changelog()
@@ -94,9 +104,12 @@ class UpdateWindow(QWidget):
         self.changelog_tree.setMinimumHeight(150)
         self.changelog_tree.setMaximumHeight(300)
         self.changelog_tree.setColumnCount(4)
-        self.changelog_tree.setHeaderLabels([_("Package"), _("Old"), _("New"), _("Size")])
+        self.changelog_tree.setHeaderLabels(
+            [_("Package"), _("Old"), _("New"), _("Size")]
+        )
         self.changelog_tree.setRootIsDecorated(True)
         self.changelog_tree.header().setStretchLastSection(True)
+        self.changelog_tree.itemDoubleClicked.connect(self._on_changelog_item_activated)
         layout.addWidget(self.changelog_tree, stretch=1)
 
         self.log_edit = QPlainTextEdit()
@@ -142,6 +155,22 @@ class UpdateWindow(QWidget):
             self.kernel_warning.setVisible(True)
             self.radio_boot.setChecked(True)
 
+    def _on_changelog_item_activated(self, item: QTreeWidgetItem, _col: int) -> None:
+        if item.parent() is None:
+            return
+        if self._homepage_worker and self._homepage_worker.isRunning():
+            return
+        name = item.text(0)
+        self.setCursor(QCursor(Qt.CursorShape.WaitCursor))
+        self._homepage_worker = HomepageWorker(name)
+        self._homepage_worker.finished.connect(self._on_homepage_fetched)
+        self._homepage_worker.start()
+
+    def _on_homepage_fetched(self, url: str) -> None:
+        self.unsetCursor()
+        if url:
+            QDesktopServices.openUrl(QUrl(url))
+
     def _toggle_changelog(self) -> None:
         self._changelog_visible = not self._changelog_visible
         self.changelog_tree.setVisible(self._changelog_visible)
@@ -176,6 +205,7 @@ class UpdateWindow(QWidget):
     def _bump_level(old: str, new: str) -> str:
         def parts(v):
             return [int(x) for x in re.findall(r"\d+", v)]
+
         o, n = parts(old), parts(new)
         if not o or not n:
             return "minor"
@@ -200,7 +230,12 @@ class UpdateWindow(QWidget):
                 continue
             m = changed_re.match(line)
             if m:
-                name, old, new, size = m.group(1), m.group(2), m.group(3), m.group(4) or ""
+                name, old, new, size = (
+                    m.group(1),
+                    m.group(2),
+                    m.group(3),
+                    m.group(4) or "",
+                )
                 if "(gone)" in new:
                     removed.append((name, old, "", size))
                 else:
