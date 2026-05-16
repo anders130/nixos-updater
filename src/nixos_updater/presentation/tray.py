@@ -42,11 +42,17 @@ class NixOSUpdaterApp(QApplication):
         self._timer.timeout.connect(self._check_for_update)
         self._timer.start(CHECK_INTERVAL_MS)
 
-        signal.signal(signal.SIGUSR1, lambda *_: QTimer.singleShot(0, self._check_for_update))
+        signal.signal(
+            signal.SIGUSR1, lambda *_: QTimer.singleShot(0, self._check_for_update)
+        )
         QTimer.singleShot(5_000, self._check_for_update)
 
     def _tray_icon(self) -> QIcon:
-        for name in ("software-update-available", "system-software-update", "update-high"):
+        for name in (
+            "software-update-available",
+            "system-software-update",
+            "update-high",
+        ):
             icon = QIcon.fromTheme(name)
             if not icon.isNull():
                 return icon

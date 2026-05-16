@@ -150,7 +150,11 @@ class UpdateWindow(QWidget):
 
     def _read_output(self) -> None:
         assert self._process is not None
-        raw = self._process.readAllStandardOutput().data().decode("utf-8", errors="replace")
+        raw = (
+            self._process.readAllStandardOutput()
+            .data()
+            .decode("utf-8", errors="replace")
+        )
         self._append_log(raw)
 
     def _on_finished(self, exit_code: int, _) -> None:
@@ -159,7 +163,9 @@ class UpdateWindow(QWidget):
             self._update_service.mark_applied(self.rev)
             self._append_log("\nUpdate successful!")
             if self.radio_boot.isChecked():
-                self._append_log("Restart to apply the new kernel / bootloader changes.")
+                self._append_log(
+                    "Restart to apply the new kernel / bootloader changes."
+                )
                 self.update_btn.setText("Restart Now")
                 self.update_btn.clicked.disconnect()
                 self.update_btn.clicked.connect(
@@ -255,7 +261,11 @@ class RollbackDialog(QWidget):
 
     def _read_output(self) -> None:
         assert self._process is not None
-        raw = self._process.readAllStandardOutput().data().decode("utf-8", errors="replace")
+        raw = (
+            self._process.readAllStandardOutput()
+            .data()
+            .decode("utf-8", errors="replace")
+        )
         self._append_log(raw)
 
     def _on_finished(self, exit_code: int, _) -> None:
