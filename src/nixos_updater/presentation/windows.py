@@ -2,7 +2,7 @@ import os
 import re
 import subprocess
 
-from PyQt6.QtCore import QModelIndex, QProcess, Qt, QUrl, pyqtSignal
+from PyQt6.QtCore import QEvent, QModelIndex, QProcess, Qt, QUrl, pyqtSignal
 from PyQt6.QtGui import QBrush, QColor, QCursor, QDesktopServices
 from PyQt6.QtWidgets import (
     QGroupBox,
@@ -76,9 +76,9 @@ class UpdateWindow(QWidget):
         layout.setSpacing(10)
         layout.setContentsMargins(16, 16, 16, 16)
 
-        title = QLabel(_("System Update Available"))
-        title.setStyleSheet("font-size: 15px; font-weight: bold;")
-        layout.addWidget(title)
+        self._title_label = QLabel(_("System Update Available"))
+        self._apply_title_font()
+        layout.addWidget(self._title_label)
         layout.addWidget(QLabel(_("Revision: %s") % self.rev.short()))
 
         group = QGroupBox(_("Apply method"))
@@ -101,8 +101,6 @@ class UpdateWindow(QWidget):
 
         self.changelog_tree = QTreeWidget()
         self.changelog_tree.setVisible(False)
-        self.changelog_tree.setMinimumHeight(150)
-        self.changelog_tree.setMaximumHeight(300)
         self.changelog_tree.setColumnCount(4)
         self.changelog_tree.setHeaderLabels(
             [_("Package"), _("Old"), _("New"), _("Size")]
@@ -110,7 +108,9 @@ class UpdateWindow(QWidget):
         self.changelog_tree.setRootIsDecorated(True)
         self.changelog_tree.header().setStretchLastSection(True)
         self.changelog_tree.itemDoubleClicked.connect(self._on_changelog_item_activated)
-        layout.addWidget(self.changelog_tree, stretch=1)
+        self.changelog_tree.itemExpanded.connect(self._fit_changelog_tree)
+        self.changelog_tree.itemCollapsed.connect(self._fit_changelog_tree)
+        layout.addWidget(self.changelog_tree)
 
         self.log_edit = QPlainTextEdit()
         self.log_edit.setReadOnly(True)
@@ -145,6 +145,17 @@ class UpdateWindow(QWidget):
         btn_row.addWidget(self.update_btn)
         layout.addLayout(btn_row)
 
+    def _apply_title_font(self) -> None:
+        font = self._title_label.font()
+        font.setPointSizeF(font.pointSizeF() * 1.3)
+        font.setBold(True)
+        self._title_label.setFont(font)
+
+    def changeEvent(self, event: QEvent) -> None:
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.FontChange:
+            self._apply_title_font()
+
     def _start_kernel_check(self) -> None:
         self._kernel_worker = KernelCheckWorker(self._kernel_service)
         self._kernel_worker.finished.connect(self._on_kernel_check_done)
@@ -154,6 +165,21 @@ class UpdateWindow(QWidget):
         if changed:
             self.kernel_warning.setVisible(True)
             self.radio_boot.setChecked(True)
+
+    def _fit_changelog_tree(self, _item=None) -> None:
+        rh = self.changelog_tree.sizeHintForRow(0)
+        if rh <= 0:
+            return
+        rows = 0
+        root = self.changelog_tree.invisibleRootItem()
+        for i in range(root.childCount()):
+            top = root.child(i)
+            rows += 1
+            if top.isExpanded():
+                rows += top.childCount()
+        h = self.changelog_tree.header().height() + rows * rh + 2
+        self.changelog_tree.setFixedHeight(h)
+        self.adjustSize()
 
     def _on_changelog_item_activated(self, item: QTreeWidgetItem, _col: int) -> None:
         if item.parent() is None:
@@ -198,8 +224,9 @@ class UpdateWindow(QWidget):
             self.changelog_tree.addTopLevelItem(
                 QTreeWidgetItem([_("No package changes detected.")])
             )
-            return
-        self._populate_changelog(result)
+        else:
+            self._populate_changelog(result)
+        self._fit_changelog_tree()
 
     @staticmethod
     def _bump_level(old: str, new: str) -> str:
