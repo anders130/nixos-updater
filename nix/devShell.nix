@@ -11,7 +11,7 @@
             buildInputs = devDeps;
             shellHook = ''
                 install -m644 ${pkgs.writers.writeTOML "pyproject.toml" pyproject} pyproject.toml
-                install -m644 ${pkgs.writers.writeText "__init__.py" "__version__ = \"${pyproject.project.version}\""} src/nixos_updater/__init__.py
+                install -m644 ${pkgs.writers.writeText "__init__.py" "__version__ = \"${pyproject.project.version}\"\n"} src/nixos_updater/__init__.py
             '';
         };
 
