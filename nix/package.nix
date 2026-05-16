@@ -3,6 +3,7 @@
         nixos-updater = pkgs.callPackage ({
             python3Packages,
             qt6Packages,
+            nixos-icons,
             copyDesktopItems,
             makeDesktopItem,
             ...
@@ -20,7 +21,14 @@
                     qt6Packages.wrapQtAppsHook
                 ];
                 dontWrapQtApps = true;
+                preBuild = ''
+                    cp ${nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg \
+                       src/nixos_updater/icon.svg
+                '';
                 preFixup = ''
+                    install -Dm644 \
+                        ${nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg \
+                        $out/share/icons/hicolor/scalable/apps/nixos-updater.svg
                     makeWrapperArgs+=("''${qtWrapperArgs[@]}")
                 '';
                 desktopItems = [
@@ -29,7 +37,7 @@
                         desktopName = "Check for System Updates";
                         comment = "Manually trigger a NixOS update check";
                         exec = "systemctl --user kill --signal=USR1 nixos-updater";
-                        icon = "system-software-update";
+                        icon = "nixos-updater";
                         categories = ["System"];
                     })
                 ];

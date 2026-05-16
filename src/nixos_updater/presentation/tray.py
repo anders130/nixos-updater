@@ -1,4 +1,5 @@
 import signal
+from importlib.resources import as_file, files
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QAction, QIcon
@@ -32,8 +33,11 @@ class NixOSUpdaterApp(QApplication):
         self._rollback_dialog: RollbackDialog | None = None
         self._worker: UpdateCheckWorker | None = None
 
+        icon = self._app_icon()
+        self.setWindowIcon(icon)
+
         self._tray = QSystemTrayIcon(self)
-        self._tray.setIcon(self._tray_icon())
+        self._tray.setIcon(icon)
         self._tray.activated.connect(self._on_tray_activated)
         self._tray.setVisible(False)
         self._rebuild_tray_menu()
@@ -47,12 +51,15 @@ class NixOSUpdaterApp(QApplication):
         )
         QTimer.singleShot(5_000, self._check_for_update)
 
-    def _tray_icon(self) -> QIcon:
-        for name in (
-            "software-update-available",
-            "system-software-update",
-            "update-high",
-        ):
+    def _app_icon(self) -> QIcon:
+        try:
+            with as_file(files("nixos_updater").joinpath("icon.svg")) as path:
+                icon = QIcon(str(path))
+                if not icon.isNull():
+                    return icon
+        except Exception:
+            pass
+        for name in ("nixos-updater", "nix-snowflake", "system-software-update"):
             icon = QIcon.fromTheme(name)
             if not icon.isNull():
                 return icon
@@ -98,7 +105,7 @@ class NixOSUpdaterApp(QApplication):
             self._tray.showMessage(
                 "System Update Available",
                 "Click to update your NixOS system.",
-                QSystemTrayIcon.MessageIcon.Information,
+                self.windowIcon(),
                 5_000,
             )
             self._show_update_window()
