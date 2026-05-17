@@ -1,14 +1,20 @@
+import os
 import re
 import subprocess
+import sys
 
 from PyQt6.QtCore import QThread, pyqtSignal
 
-from ..application.services import (
-    ChangelogService,
-    KernelCheckService,
-    UpdateCheckResult,
-    UpdateCheckService,
-)
+from ..application.services import ChangelogService, KernelCheckService, UpdateCheckService
+
+
+def _cache_args() -> list[str]:
+    args = []
+    for entry in os.environ.get("NIXOS_UPDATER_CACHES", "").split(";"):
+        parts = entry.split("|", 1)
+        if len(parts) == 2 and parts[0].strip():
+            args += ["--substituters", parts[0].strip(), "--trusted-public-keys", parts[1].strip()]
+    return args
 
 ANSI_ESCAPE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
@@ -67,5 +73,6 @@ class HomepageWorker(QThread):
                 timeout=30,
             )
             self.finished.emit(result.stdout.strip() if result.returncode == 0 else "")
-        except Exception:
+        except Exception as e:
+            print(f"HomepageWorker: {e}", file=sys.stderr)
             self.finished.emit("")
