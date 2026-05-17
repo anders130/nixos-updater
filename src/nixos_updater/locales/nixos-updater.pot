@@ -1,16 +1,47 @@
-# NixOS Updater translation template
-# Copyright (C) 2025 anders130
-# MIME-Version: 1.0
-# Content-Type: text/plain; charset=UTF-8
-# Content-Transfer-Encoding: 8bit
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR anders130
+# This file is distributed under the same license as the nixos-updater package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: nixos-updater 0.1.0\n"
-"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-17 13:46+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+msgid "Rollback System"
+msgstr ""
+
+msgid "Roll back to the previous system configuration?"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Rollback"
+msgstr ""
+
+msgid ""
+"\n"
+"Rollback successful!"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Rollback failed (exit code %d)"
+msgstr ""
+
+msgid "Close"
+msgstr ""
 
 msgid "Check for updates"
 msgstr ""
@@ -27,16 +58,51 @@ msgstr ""
 msgid "Click to update your NixOS system."
 msgstr ""
 
-msgid "Revision: %s"
+msgid "Building closure, please wait…"
+msgstr ""
+
+msgid "No package changes detected."
+msgstr ""
+
+msgid "Updated"
+msgstr ""
+
+msgid "Added"
+msgstr ""
+
+msgid "Removed"
+msgstr ""
+
+msgid "new"
+msgstr ""
+
+#, python-format
+msgid "$ %s\n"
+msgstr ""
+
+msgid "Update successful!"
+msgstr ""
+
+msgid "Restart to apply the new kernel / bootloader changes."
+msgstr ""
+
+#, python-format
+msgid "Update failed (exit code %d)"
 msgstr ""
 
 msgid "Apply method"
 msgstr ""
 
-msgid "Apply now (switch)\nSwitch running services without reboot"
+msgid "Switch — apply now"
 msgstr ""
 
-msgid "Apply on next boot (boot)\nRequired for kernel / bootloader changes"
+msgid "Reload running services, no reboot required"
+msgstr ""
+
+msgid "Boot — on next startup"
+msgstr ""
+
+msgid "Required for kernel or bootloader updates"
 msgstr ""
 
 msgid "Kernel update detected — boot recommended"
@@ -48,80 +114,20 @@ msgstr ""
 msgid "Later"
 msgstr ""
 
-msgid "Show Log"
+msgid "What's changing?"
 msgstr ""
 
-msgid "Hide Log"
+msgid "Show Log"
 msgstr ""
 
 msgid "Update"
 msgstr ""
 
-msgid "$ %s\n"
-msgstr ""
-
-msgid "\nUpdate successful!"
-msgstr ""
-
-msgid "Restart to apply the new kernel / bootloader changes."
-msgstr ""
-
-msgid "Restart Now"
-msgstr ""
-
-msgid "Close"
-msgstr ""
-
-msgid "\nUpdate failed (exit code %d)"
-msgstr ""
-
-msgid "Rollback System"
-msgstr ""
-
-msgid "Roll back to the previous system configuration?"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
-msgid "Rollback"
-msgstr ""
-
-msgid "\nRollback successful!"
-msgstr ""
-
-msgid "\nRollback failed (exit code %d)"
-msgstr ""
-
-msgid "What's changing?"
-msgstr ""
-
 msgid "Hide Changes"
 msgstr ""
 
-msgid "Building closure, please wait…"
+msgid "Hide Log"
 msgstr ""
 
-msgid "No package changes detected."
-msgstr ""
-
-msgid "Package"
-msgstr ""
-
-msgid "Old"
-msgstr ""
-
-msgid "New"
-msgstr ""
-
-msgid "Size"
-msgstr ""
-
-msgid "Updated"
-msgstr ""
-
-msgid "Added"
-msgstr ""
-
-msgid "Removed"
+msgid "Restart Now"
 msgstr ""
