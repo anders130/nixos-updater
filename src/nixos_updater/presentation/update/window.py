@@ -250,7 +250,7 @@ class UpdateWindow(QWidget):
         if not self._log_visible:
             self._toggle_log()
 
-        cmd = ["sudo", "nixos-rebuild", action, "--flake", f"{self._flake_url}#{self._hostname}"]
+        cmd = ["sudo", "nixos-rebuild", action, "--flake", f"{self._flake_url}#{self._hostname}", "--refresh"]
         self.log_widget.append_command(cmd)
 
         self._process = QProcess()
