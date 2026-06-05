@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidg
 from ...application.services import UpdateCheckService
 from ...i18n import _
 from ..update.widgets import LogWidget
-from ..workers import _cache_args
 
 
 class RollbackDialog(QWidget):
@@ -45,7 +44,6 @@ class RollbackDialog(QWidget):
 
         cmd = ["sudo", "nixos-rebuild", "switch", "--rollback"]
         self.log_widget.append_command(cmd)
-        cmd += _cache_args()
 
         self._process = QProcess()
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)

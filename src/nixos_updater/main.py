@@ -34,6 +34,6 @@ def main() -> None:
     changelog_service = ChangelogService(differ)
 
     app = NixOSUpdaterApp(
-        sys.argv, flake_url, update_service, kernel_service, changelog_service
+        sys.argv, flake_url, hostname, update_service, kernel_service, changelog_service
     )
     sys.exit(app.exec())

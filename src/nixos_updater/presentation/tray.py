@@ -25,6 +25,7 @@ class NixOSUpdaterApp(QApplication):
         self,
         argv: list[str],
         flake_url: str,
+        hostname: str,
         update_service: UpdateCheckService,
         kernel_service: KernelCheckService,
         changelog_service: ChangelogService,
@@ -33,6 +34,7 @@ class NixOSUpdaterApp(QApplication):
         self.setQuitOnLastWindowClosed(False)
 
         self._flake_url = flake_url
+        self._hostname = hostname
         self._update_service = update_service
         self._kernel_service = kernel_service
         self._changelog_service = changelog_service
@@ -135,6 +137,7 @@ class NixOSUpdaterApp(QApplication):
             self._update_window = UpdateWindow(
                 self._pending_rev,
                 self._flake_url,
+                self._hostname,
                 self._update_service,
                 self._kernel_service,
                 self._changelog_service,

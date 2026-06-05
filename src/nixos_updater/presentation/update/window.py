@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
 from ...application.services import ChangelogService, KernelCheckService, UpdateCheckService
 from ...domain.models import Revision
 from ...i18n import _
-from ..workers import ChangelogWorker, KernelCheckWorker, _cache_args
+from ..workers import ChangelogWorker, KernelCheckWorker
 from .widgets import ChangelogWidget, LogWidget, ResultWidget
 
 
@@ -26,6 +26,7 @@ class UpdateWindow(QWidget):
         self,
         rev: Revision,
         flake_url: str,
+        hostname: str,
         update_service: UpdateCheckService,
         kernel_service: KernelCheckService,
         changelog_service: ChangelogService,
@@ -34,6 +35,7 @@ class UpdateWindow(QWidget):
         super().__init__(parent)
         self.rev = rev
         self._flake_url = flake_url
+        self._hostname = hostname
         self._update_service = update_service
         self._kernel_service = kernel_service
         self._changelog_service = changelog_service
@@ -248,9 +250,8 @@ class UpdateWindow(QWidget):
         if not self._log_visible:
             self._toggle_log()
 
-        cmd = ["sudo", "nixos-rebuild", action, "--flake", self._flake_url]
+        cmd = ["sudo", "nixos-rebuild", action, "--flake", f"{self._flake_url}#{self._hostname}"]
         self.log_widget.append_command(cmd)
-        cmd += _cache_args()
 
         self._process = QProcess()
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)

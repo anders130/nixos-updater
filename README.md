@@ -34,22 +34,21 @@ services.nixosUpdater = {
 
 ## Options
 
-| Option     | Type                           | Description                        |
-| ---------- | ------------------------------ | ---------------------------------- |
-| `enable`   | bool                           | Enable the service                 |
-| `flakeUrl` | string                         | Flake to watch for updates         |
-| `caches`   | list of `{ url, key }`         | Binary caches for update/rollback  |
+| Option     | Type   | Description                |
+| ---------- | ------ | -------------------------- |
+| `enable`   | bool   | Enable the service         |
+| `flakeUrl` | string | Flake to watch for updates |
 
-Example with a cache:
+## Binary caches
+
+nixos-updater runs `nixos-rebuild` directly, which inherits the Nix
+daemon's configuration. Configure private caches in your NixOS config
+and they will be used automatically during updates:
 
 ```nix
-services.nixosUpdater = {
-  enable = true;
-  flakeUrl = "github:you/nixos-config";
-  caches = [{
-    url = "https://you.cachix.org";
-    key = "you.cachix.org-1:abc123...";
-  }];
+nix.settings = {
+  substituters = ["https://you.cachix.org"];
+  trusted-public-keys = ["you.cachix.org-1:abc123..."];
 };
 ```
 
