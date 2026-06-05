@@ -1,5 +1,6 @@
 import signal
 from importlib.resources import as_file, files
+from pathlib import Path
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QAction, QIcon
@@ -47,6 +48,7 @@ class NixOSUpdaterApp(QApplication):
         self._tray = QSystemTrayIcon(self)
         self._tray.setIcon(icon)
         self._tray.activated.connect(self._on_tray_activated)
+        self._tray.messageClicked.connect(self._show_update_window)
         self._tray.setVisible(False)
         self._rebuild_tray_menu()
 
@@ -71,7 +73,15 @@ class NixOSUpdaterApp(QApplication):
             icon = QIcon.fromTheme(name)
             if not icon.isNull():
                 return icon
-        return self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowUp)
+        _snowflake = "hicolor/scalable/apps/nix-snowflake.svg"
+        for base in (
+            Path("/run/current-system/sw/share/icons"),
+            Path.home() / ".nix-profile/share/icons",
+        ):
+            icon = QIcon(str(base / _snowflake))
+            if not icon.isNull():
+                return icon
+        return self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
 
     def _rebuild_tray_menu(self) -> None:
         menu = self._tray.contextMenu()
