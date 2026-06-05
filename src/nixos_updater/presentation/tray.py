@@ -43,6 +43,7 @@ class NixOSUpdaterApp(QApplication):
         self._update_window: UpdateWindow | None = None
         self._rollback_dialog: RollbackDialog | None = None
         self._worker: UpdateCheckWorker | None = None
+        self._manual_check = False
 
         icon = self._app_icon()
         self.setWindowIcon(icon)
@@ -59,7 +60,7 @@ class NixOSUpdaterApp(QApplication):
         self._timer.start(CHECK_INTERVAL_MS)
 
         signal.signal(
-            signal.SIGUSR1, lambda *_: QTimer.singleShot(0, self._check_for_update)
+            signal.SIGUSR1, lambda *_: QTimer.singleShot(0, lambda: self._check_for_update(manual=True))
         )
         QTimer.singleShot(5_000, self._check_for_update)
 
@@ -94,7 +95,7 @@ class NixOSUpdaterApp(QApplication):
             self._tray.setContextMenu(menu)
 
         check_action = QAction(_("Check for updates"), self)
-        check_action.triggered.connect(self._check_for_update)
+        check_action.triggered.connect(lambda: self._check_for_update(manual=True))
         menu.addAction(check_action)
 
         if self._post_update:
@@ -111,14 +112,17 @@ class NixOSUpdaterApp(QApplication):
         if reason == QSystemTrayIcon.ActivationReason.Trigger and self._pending_rev:
             self._show_update_window()
 
-    def _check_for_update(self) -> None:
+    def _check_for_update(self, manual: bool = False) -> None:
         if self._worker and self._worker.isRunning():
             return
+        self._manual_check = manual
         self._worker = UpdateCheckWorker(self._update_service)
         self._worker.finished.connect(self._on_check_done)
         self._worker.start()
 
     def _on_check_done(self, result) -> None:
+        manual = self._manual_check
+        self._manual_check = False
         if result.status == UpdateStatus.UPDATE_AVAILABLE and result.revision:
             self._pending_rev = result.revision
             self._tray.setVisible(True)
@@ -129,6 +133,16 @@ class NixOSUpdaterApp(QApplication):
                 5_000,
             )
             self._show_update_window()
+        elif manual and result.status == UpdateStatus.UP_TO_DATE:
+            self._tray.setVisible(True)
+            self._tray.showMessage(
+                _("System is up to date"),
+                _("No updates available."),
+                self.windowIcon(),
+                4_000,
+            )
+            if not self._pending_rev and not self._post_update:
+                QTimer.singleShot(5_000, lambda: self._tray.setVisible(False))
 
     def _show_update_window(self) -> None:
         if self._pending_rev is None:

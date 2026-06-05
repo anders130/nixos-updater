@@ -8,24 +8,125 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nixos-updater 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-17 13:46+0200\n"
+"POT-Creation-Date: 2026-06-05 20:56+0200\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: src/nixos_updater/presentation/tray.py:97
+msgid "Check for updates"
+msgstr "Auf Updates prüfen"
+
+#: src/nixos_updater/presentation/tray.py:102
+msgid "Rollback if broken"
+msgstr "Rollback bei Problemen"
+
+#: src/nixos_updater/presentation/tray.py:107
+msgid "Quit"
+msgstr "Beenden"
+
+#: src/nixos_updater/presentation/tray.py:130
+#: src/nixos_updater/presentation/update/window.py:51
+#: src/nixos_updater/presentation/update/window.py:90
+msgid "System Update Available"
+msgstr "Systemupdate verfügbar"
+
+#: src/nixos_updater/presentation/tray.py:131
+msgid "Click to update your NixOS system."
+msgstr "Klicken, um dein NixOS-System zu aktualisieren."
+
+#: src/nixos_updater/presentation/tray.py:139
+msgid "System is up to date"
+msgstr "System ist aktuell"
+
+#: src/nixos_updater/presentation/tray.py:140
+msgid "No updates available."
+msgstr "Keine Updates verfügbar."
+
+#: src/nixos_updater/presentation/update/window.py:107
+msgid "Apply method"
+msgstr "Anwendungsmethode"
+
+#: src/nixos_updater/presentation/update/window.py:128
+msgid "Switch — apply now"
+msgstr "Wechseln — jetzt anwenden"
+
+#: src/nixos_updater/presentation/update/window.py:131
+msgid "Reload running services, no reboot required"
+msgstr "Dienste neu laden, kein Neustart erforderlich"
+
+#: src/nixos_updater/presentation/update/window.py:134
+msgid "Boot — on next startup"
+msgstr "Boot — beim nächsten Start"
+
+#: src/nixos_updater/presentation/update/window.py:136
+msgid "Required for kernel or bootloader updates"
+msgstr "Erforderlich für Kernel- oder Bootloader-Updates"
+
+#: src/nixos_updater/presentation/update/window.py:139
+msgid "Kernel update detected — boot recommended"
+msgstr "Kernel-Update erkannt — Neustart empfohlen"
+
+#: src/nixos_updater/presentation/update/window.py:167
+msgid "Skip Version"
+msgstr "Version überspringen"
+
+#: src/nixos_updater/presentation/update/window.py:171
+msgid "Later"
+msgstr "Später"
+
+#: src/nixos_updater/presentation/update/window.py:175
+#: src/nixos_updater/presentation/update/window.py:221
+msgid "What's changing?"
+msgstr "Was ändert sich?"
+
+#: src/nixos_updater/presentation/update/window.py:179
+#: src/nixos_updater/presentation/update/window.py:237
+msgid "Show Log"
+msgstr "Log anzeigen"
+
+#: src/nixos_updater/presentation/update/window.py:183
+#: src/nixos_updater/presentation/update/window.py:290
+msgid "Update"
+msgstr "Aktualisieren"
+
+#: src/nixos_updater/presentation/update/window.py:221
+msgid "Hide Changes"
+msgstr "Änderungen ausblenden"
+
+#: src/nixos_updater/presentation/update/window.py:237
+msgid "Hide Log"
+msgstr "Log ausblenden"
+
+#: src/nixos_updater/presentation/update/window.py:274
+msgid "Restart Now"
+msgstr "Jetzt neu starten"
+
+#: src/nixos_updater/presentation/update/window.py:278
+#: src/nixos_updater/presentation/update/window.py:283
+#: src/nixos_updater/presentation/update/window.py:294
+#: src/nixos_updater/presentation/rollback/dialog.py:65
+msgid "Close"
+msgstr "Schließen"
+
+#: src/nixos_updater/presentation/rollback/dialog.py:17
 msgid "Rollback System"
 msgstr "System zurücksetzen"
 
+#: src/nixos_updater/presentation/rollback/dialog.py:22
 msgid "Roll back to the previous system configuration?"
 msgstr "Zur vorherigen Systemkonfiguration zurückrollen?"
 
+#: src/nixos_updater/presentation/rollback/dialog.py:30
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: src/nixos_updater/presentation/rollback/dialog.py:32
 msgid "Rollback"
 msgstr "Zurückrollen"
 
+#: src/nixos_updater/presentation/rollback/dialog.py:62
 msgid ""
 "\n"
 "Rollback successful!"
@@ -33,6 +134,7 @@ msgstr ""
 "\n"
 "Rollback erfolgreich!"
 
+#: src/nixos_updater/presentation/rollback/dialog.py:64
 #, python-format
 msgid ""
 "\n"
@@ -41,94 +143,44 @@ msgstr ""
 "\n"
 "Rollback fehlgeschlagen (Exit-Code %d)"
 
-msgid "Close"
-msgstr "Schließen"
-
-msgid "Check for updates"
-msgstr "Auf Updates prüfen"
-
-msgid "Rollback if broken"
-msgstr "Rollback bei Problemen"
-
-msgid "Quit"
-msgstr "Beenden"
-
-msgid "System Update Available"
-msgstr "Systemupdate verfügbar"
-
-msgid "Click to update your NixOS system."
-msgstr "Klicken, um dein NixOS-System zu aktualisieren."
-
-msgid "Building closure, please wait…"
-msgstr "Closure wird erstellt, bitte warten…"
-
-msgid "No package changes detected."
-msgstr "Keine Paketänderungen erkannt."
-
-msgid "Updated"
-msgstr "Aktualisiert"
-
-msgid "Added"
-msgstr "Hinzugefügt"
-
-msgid "Removed"
-msgstr "Entfernt"
-
-msgid "new"
-msgstr "neu"
-
-#, python-format
-msgid "$ %s\n"
-msgstr "$ %s\n"
-
+#: src/nixos_updater/presentation/update/widgets/result.py:62
 msgid "Update successful!"
 msgstr "Update erfolgreich!"
 
+#: src/nixos_updater/presentation/update/widgets/result.py:65
 msgid "Restart to apply the new kernel / bootloader changes."
 msgstr "Neustart erforderlich, um Kernel-/Bootloader-Änderungen anzuwenden."
 
+#: src/nixos_updater/presentation/update/widgets/result.py:74
 #, python-format
 msgid "Update failed (exit code %d)"
 msgstr "Update fehlgeschlagen (Exit-Code %d)"
 
-msgid "Apply method"
-msgstr "Anwendungsmethode"
+#: src/nixos_updater/presentation/update/widgets/log.py:29
+#, python-format
+msgid "$ %s\n"
+msgstr "$ %s\n"
 
-msgid "Switch — apply now"
-msgstr "Wechseln — jetzt anwenden"
+#: src/nixos_updater/presentation/update/widgets/changelog.py:153
+msgid "Building closure, please wait…"
+msgstr "Closure wird erstellt, bitte warten…"
 
-msgid "Reload running services, no reboot required"
-msgstr "Dienste neu laden, kein Neustart erforderlich"
+#: src/nixos_updater/presentation/update/widgets/changelog.py:167
+msgid "No package changes detected."
+msgstr "Keine Paketänderungen erkannt."
 
-msgid "Boot — on next startup"
-msgstr "Boot — beim nächsten Start"
+#: src/nixos_updater/presentation/update/widgets/changelog.py:173
+msgid "Updated"
+msgstr "Aktualisiert"
 
-msgid "Required for kernel or bootloader updates"
-msgstr "Erforderlich für Kernel- oder Bootloader-Updates"
+#: src/nixos_updater/presentation/update/widgets/changelog.py:174
+msgid "Added"
+msgstr "Hinzugefügt"
 
-msgid "Kernel update detected — boot recommended"
-msgstr "Kernel-Update erkannt — Neustart empfohlen"
+#: src/nixos_updater/presentation/update/widgets/changelog.py:175
+msgid "Removed"
+msgstr "Entfernt"
 
-msgid "Skip Version"
-msgstr "Version überspringen"
-
-msgid "Later"
-msgstr "Später"
-
-msgid "What's changing?"
-msgstr "Was ändert sich?"
-
-msgid "Show Log"
-msgstr "Log anzeigen"
-
-msgid "Update"
-msgstr "Aktualisieren"
-
-msgid "Hide Changes"
-msgstr "Änderungen ausblenden"
-
-msgid "Hide Log"
-msgstr "Log ausblenden"
-
-msgid "Restart Now"
-msgstr "Jetzt neu starten"
+#: src/nixos_updater/presentation/update/widgets/changelog.py:210
+msgid "new"
+msgstr "neu"
