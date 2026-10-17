@@ -21,6 +21,8 @@
                     pkgs.gettext
                     qt6Packages.wrapQtAppsHook
                 ];
+                nativeCheckInputs = [python3Packages.unittestCheckHook];
+                unittestFlags = ["-s" "tests" "-v"];
                 dontWrapQtApps = true;
                 preBuild = ''
                     cp ${nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg \

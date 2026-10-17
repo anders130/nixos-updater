@@ -25,6 +25,11 @@ class FlakeSource(ABC):
     def fetch_revision(self) -> Revision | None: ...
 
 
+class RunningRevisionSource(ABC):
+    @abstractmethod
+    def running_revision(self) -> Revision | None: ...
+
+
 class KernelInspector(ABC):
     @abstractmethod
     def running_version(self) -> KernelVersion | None: ...

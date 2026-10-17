@@ -3,7 +3,12 @@ import os
 import subprocess
 
 from ..domain.models import KernelVersion, Revision
-from ..domain.ports import FlakeSource, KernelInspector, SystemDiffer
+from ..domain.ports import (
+    FlakeSource,
+    KernelInspector,
+    RunningRevisionSource,
+    SystemDiffer,
+)
 
 
 def _cache_env_args() -> list[str]:
@@ -36,6 +41,30 @@ class NixFlakeSource(FlakeSource):
                 rev = json.loads(result.stdout).get("revision")
                 if rev:
                     return Revision(rev)
+        except Exception:
+            pass
+        return None
+
+
+class CurrentSystemRevision(RunningRevisionSource):
+    def running_revision(self) -> Revision | None:
+        try:
+            # Reads /run/current-system; exits non-zero if system.configurationRevision is unset.
+            result = subprocess.run(
+                ["nixos-version", "--configuration-revision"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            rev = result.stdout.strip()
+            # A "-dirty" rev doesn't correspond to any commit on the remote.
+            if (
+                result.returncode == 0
+                and rev
+                and rev != "null"
+                and not rev.endswith("-dirty")
+            ):
+                return Revision(rev)
         except Exception:
             pass
         return None

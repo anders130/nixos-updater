@@ -13,7 +13,13 @@
 
             flakeUrl = lib.mkOption {
                 type = lib.types.str;
-                description = "Flake URL to check for updates (e.g. github:user/nixos-family).";
+                description = ''
+                    Flake URL to check for updates (e.g. github:user/nixos-family).
+
+                    Updates are detected by comparing the flake's latest revision to the
+                    revision the running system was built from, so the NixOS configuration
+                    must set `system.configurationRevision = self.rev or self.dirtyRev or null;`.
+                '';
             };
         };
 

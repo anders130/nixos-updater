@@ -32,6 +32,26 @@ services.nixosUpdater = {
 };
 ```
 
+Set the configuration revision in your NixOS configuration (where `self`
+is your config flake) so the updater knows which revision is running:
+
+```nix
+system.configurationRevision = self.rev or self.dirtyRev or null;
+```
+
+## How updates are detected
+
+The updater compares the flake's latest revision with
+`nixos-version --configuration-revision`, i.e. the revision
+`/run/current-system` was built from. This stays correct for hosts
+deployed by other means (e.g. `nixos-rebuild --target-host`).
+
+If the running revision is unknown (`system.configurationRevision` unset,
+or a `-dirty` build), it falls back to the last revision applied through
+the updater (`~/.local/share/nixos-updater/applied-rev`). If that is
+missing too, an update is reported. A revision you chose to skip is not
+offered again.
+
 ## Options
 
 | Option     | Type   | Description                |
@@ -57,12 +77,12 @@ nix.settings = {
 ```bash
 nix develop
 nix build
+PYTHONPATH=src python -m unittest discover -s tests
 ```
 
 To test the UI without waiting for a real update:
 
 ```bash
-echo "0000000000000000000000000000000000000000" > ~/.local/share/nixos-updater/applied-rev
 NIXOS_UPDATER_FLAKE_URL="github:NixOS/nixpkgs/nixos-unstable" \
 NIXOS_UPDATER_HOSTNAME="test" \
 ./result/bin/nixos-updater &

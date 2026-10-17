@@ -8,7 +8,12 @@ from .application.services import (
     UpdateCheckService,
 )
 from .infrastructure.file_store import FileRevisionStore
-from .infrastructure.nix_cli import NixFlakeSource, NixKernelInspector, NixSystemDiffer
+from .infrastructure.nix_cli import (
+    CurrentSystemRevision,
+    NixFlakeSource,
+    NixKernelInspector,
+    NixSystemDiffer,
+)
 from .presentation.tray import NixOSUpdaterApp
 
 
@@ -29,7 +34,7 @@ def main() -> None:
     inspector = NixKernelInspector(flake_url, hostname)
     differ = NixSystemDiffer(flake_url, hostname)
 
-    update_service = UpdateCheckService(store, source)
+    update_service = UpdateCheckService(store, source, CurrentSystemRevision())
     kernel_service = KernelCheckService(inspector)
     changelog_service = ChangelogService(differ)
 
