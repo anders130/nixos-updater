@@ -1,8 +1,9 @@
 import signal
+import socket
 from importlib.resources import as_file, files
 from pathlib import Path
 
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QSocketNotifier, QTimer
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon
 
@@ -17,7 +18,7 @@ from ..i18n import _
 from .windows import RollbackDialog, UpdateWindow
 from .workers import UpdateCheckWorker
 
-CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000
+CHECK_INTERVAL_MS = 60 * 60 * 1000
 
 
 class NixOSUpdaterApp(QApplication):
@@ -59,10 +60,31 @@ class NixOSUpdaterApp(QApplication):
         self._timer.timeout.connect(self._check_for_update)
         self._timer.start(CHECK_INTERVAL_MS)
 
+        self._install_signal_wakeup()
         signal.signal(
             signal.SIGUSR1, lambda *_: QTimer.singleShot(0, lambda: self._check_for_update(manual=True))
         )
         QTimer.singleShot(5_000, self._check_for_update)
+
+    def _install_signal_wakeup(self) -> None:
+        # Python only runs signal handlers once the interpreter regains control,
+        # which never happens while the Qt event loop is idle. Route signals
+        # through a socket Qt watches, so SIGUSR1 is handled immediately.
+        self._signal_rsock, self._signal_wsock = socket.socketpair()
+        self._signal_rsock.setblocking(False)
+        self._signal_wsock.setblocking(False)
+        signal.set_wakeup_fd(self._signal_wsock.fileno())
+        self._signal_notifier = QSocketNotifier(
+            self._signal_rsock.fileno(), QSocketNotifier.Type.Read, self
+        )
+        self._signal_notifier.activated.connect(self._drain_signal_socket)
+
+    def _drain_signal_socket(self) -> None:
+        try:
+            while self._signal_rsock.recv(64):
+                pass
+        except BlockingIOError:
+            pass
 
     def _app_icon(self) -> QIcon:
         try:
